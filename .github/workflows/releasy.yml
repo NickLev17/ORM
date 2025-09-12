@@ -1,21 +1,40 @@
 name: 'C++ CI'
+
 on:
   push:
     branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-     
-      - run: sudo apt-get install -y libboost-test-dev doxygen graphviz libmysqlcppconn-dev libsqlite3-dev
-      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
-      - run: cmake --build .
-      - run: find . -name '*.deb' -ls
-      - run: cmake --build . --target package
-      
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libboost-test-dev \
+            doxygen \
+            graphviz \
+            libmysqlcppconn-dev \
+            libsqlite3-dev
+
+      - name: Configure CMake
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
+
+      - name: Build project
+        run: cmake --build .
+
+      - name: Package project
+        run: cmake --build . --target package
+
+      - name: List deb packages
+        run: find . -name '*.deb' -ls
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
