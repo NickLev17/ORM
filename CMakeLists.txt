@@ -34,7 +34,7 @@ target_link_libraries(main
     mysqlcppconn  
     sqlite3       
 )
-find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS filesystem program_options unit_test_framework)
+find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS unit_test_framework)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
