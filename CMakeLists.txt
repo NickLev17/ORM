@@ -31,6 +31,13 @@ target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 
 target_link_libraries(main
-    mysqlcppconn  # MySQL Connector/C++ библиотека
-    sqlite3       # SQLite3 библиотека
+    mysqlcppconn  
+    sqlite3       
 )
+install(TARGETS orm RUNTIME DESTINATION bin)
+set(CPACK_GENERATOR DEB)
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+set(CPACK_PACKAGE_CONTACT example@example.com)
+include(CPack)
