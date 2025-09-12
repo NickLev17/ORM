@@ -39,8 +39,8 @@ find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS filesystem program_options un
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 
-    add_executable(bayan bayan.cpp)
-    target_link_libraries(bayan Boost::filesystem Boost::program_options Boost::unit_test_framework)
+    
+    target_link_libraries(main Boost::unit_test_framework)
 else()
     message(FATAL_ERROR "Boost not found")
 endif()
