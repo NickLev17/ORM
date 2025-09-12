@@ -34,6 +34,16 @@ target_link_libraries(main
     mysqlcppconn  
     sqlite3       
 )
+find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS filesystem program_options unit_test_framework)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+
+    add_executable(bayan bayan.cpp)
+    target_link_libraries(bayan Boost::filesystem Boost::program_options Boost::unit_test_framework)
+else()
+    message(FATAL_ERROR "Boost not found")
+endif()
 install(TARGETS orm RUNTIME DESTINATION bin)
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
