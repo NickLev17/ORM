@@ -31,14 +31,24 @@ target_link_libraries(orm_database
 )
 
 include(FetchContent)
-
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG main   # основная ветка googletest - main
+  GIT_TAG main
 )
-
 FetchContent_MakeAvailable(googletest)
+
+option(WITH_BOOST_TEST "Enable Boost.Test support" OFF)
+
+if(WITH_BOOST_TEST)
+    find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+    # Пример теста Boost.Test, добавьте свои файлы тестов
+    add_executable(boost_tests test/test_boost.cpp)
+    target_link_libraries(boost_tests PRIVATE ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    include_directories(${Boost_INCLUDE_DIRS})
+    enable_testing()
+    add_test(NAME boost_tests COMMAND boost_tests)
+endif()
 
 enable_testing()
 
@@ -49,9 +59,7 @@ set(TEST_SOURCES
 
 add_executable(runTests ${TEST_SOURCES})
 target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3)
-
 target_include_directories(runTests PRIVATE include)
-
 add_test(NAME runTests COMMAND runTests)
 
 install(TARGETS orm_database RUNTIME DESTINATION bin)
@@ -60,5 +68,4 @@ set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-set(CPACK_PACKAGE_CONTACT example@example.com)
-include(CPack)
+set(CPACK_PACK
