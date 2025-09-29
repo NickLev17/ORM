@@ -1,3 +1,6 @@
+Исправленный CMakeLists.txt с актуальным тегом для GoogleTest и корректной настройкой FetchContent выглядит так:
+
+text
 cmake_minimum_required(VERSION 3.11)  # минимум для FetchContent
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
@@ -34,7 +37,7 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.15.2
+  GIT_TAG release-1.17.0
 )
 
 FetchContent_MakeAvailable(googletest)
