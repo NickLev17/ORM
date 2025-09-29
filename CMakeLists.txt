@@ -3,50 +3,49 @@ cmake_minimum_required(VERSION 3.5)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-
 project(main VERSION ${PROJECT_VERSION})
 configure_file(version.h.in version.h)
 
-set(SOURCES
-    src/main.cpp
-   src/MySQLDatabase.cpp
-   src/SQLiteDatabase.cpp
-)
-
-set(HEADERS
-    include/MySQLDatabase.h
-    include/SQLiteDatabase.h
-    include/Database.h
-)
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
-
-
-add_executable(main ${SOURCES})
-target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
-
-
-
-target_link_libraries(main
-    mysqlcppconn  
-    sqlite3       
+add_library(database SHARED
+    src/MySQLDatabase.cpp
+    src/SQLiteDatabase.cpp
 )
-find_package(Boost 1.70 CONFIG REQUIRED COMPONENTS unit_test_framework)
+target_include_directories(database PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+install(TARGETS database
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+add_executable(orm_database src/main.cpp)
+target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
+target_link_libraries(orm_database
+    database
+    mysqlcppconn
+    sqlite3
+)
 
-    
-    target_link_libraries(main Boost::unit_test_framework)
-else()
-    message(FATAL_ERROR "Boost not found")
-endif()
-install(TARGETS main RUNTIME DESTINATION bin)
+enable_testing()
 
-install(TARGETS main RUNTIME DESTINATION bin)
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+
+set(TEST_SOURCES
+    test/test_main.cpp
+    test/test_sqlite.cpp
+    src/SQLiteDatabase.cpp
+)
+
+add_executable(runTests ${TEST_SOURCES})
+target_link_libraries(runTests PRIVATE database ${GTEST_LIBRARIES} pthread sqlite3)
+target_include_directories(runTests PRIVATE include)
+
+add_test(NAME runTests COMMAND runTests)
+
+install(TARGETS orm_database RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
