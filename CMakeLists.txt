@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.11)  # минимум для FetchContent
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
@@ -19,6 +19,7 @@ install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+
 add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -28,10 +29,17 @@ target_link_libraries(orm_database
     sqlite3
 )
 
-enable_testing()
+include(FetchContent)
 
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.15.2
+)
+
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
 
 set(TEST_SOURCES
     test/test_main.cpp
@@ -40,7 +48,8 @@ set(TEST_SOURCES
 )
 
 add_executable(runTests ${TEST_SOURCES})
-target_link_libraries(runTests PRIVATE database ${GTEST_LIBRARIES} pthread sqlite3)
+target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3)
+
 target_include_directories(runTests PRIVATE include)
 
 add_test(NAME runTests COMMAND runTests)
