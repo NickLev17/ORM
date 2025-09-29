@@ -1,4 +1,3 @@
-// #include "SQLiteDatabase.h"
 #include "../include/SQLiteDatabase.h"
 SQLiteDatabase::SQLiteDatabase()
 {
@@ -37,7 +36,7 @@ void SQLiteDatabase::createDatabase(const string &db_file)
     }
     connection = true;
 }
-bool SQLiteDatabase::isConnected()
+bool SQLiteDatabase::isConnected() const
 {
     return connection;
 }
@@ -65,7 +64,7 @@ void SQLiteDatabase::useDatabase(const string &db_file)
         std::cout << "Can't open database: " << sqlite3_errmsg(db) << "\n";
     }
 }
-bool SQLiteDatabase::tableExists(const string &tableName)
+bool SQLiteDatabase::tableExists(const string &tableName) const
 {
     string sql = "SELECT count(name) FROM sqlite_master WHERE type='table' AND name='" + tableName + "'";
     sqlite3_stmt *stmt;
@@ -89,11 +88,11 @@ void SQLiteDatabase::dropDatabase(const string &db_file)
     if (res == 0)
     {
 
-        cout << " Database " << db_file << " wos deleted successfully\n";
+        cout << "Database " << db_file << " wos deleted successfully\n";
     }
     else
     {
-        cout << " Database " << db_file << " wos not delete\n";
+        cout << "Database " << db_file << " wos not delete\n";
     }
 }
 void SQLiteDatabase::dropTable(const string &tableName)
@@ -103,12 +102,12 @@ void SQLiteDatabase::dropTable(const string &tableName)
     bool result = execute(sql);
     if (result)
     {
-        cout << " Table " << tableName << " wos deleted succeccfully\n";
+        cout << "Table " << tableName << " wos deleted succeccfully\n";
     }
     else
     {
         {
-            cout << " Table " << tableName << " wos not deleted \n";
+            cout << "Table " << tableName << " wos not deleted \n";
         }
     }
 }
@@ -136,12 +135,12 @@ void SQLiteDatabase::createTable(const string &tableName)
     bool result = execute(sql);
     if (result)
     {
-        cout << " Table " << tableName << " wos created succeccfully\n";
+        cout << "Table " << tableName << " wos created succeccfully\n";
     }
     else
     {
 
-        cout << " Table " << tableName << " wos not created\n";
+        cout << "Table " << tableName << " wos not created\n";
     }
 }
 void SQLiteDatabase::renameTable(const string &tableName, const string &newName)
@@ -151,12 +150,12 @@ void SQLiteDatabase::renameTable(const string &tableName, const string &newName)
     bool result = execute(sql);
     if (result)
     {
-        cout << " Table " << tableName << " wos renamed succeccfully\n";
+        cout << "Table " << tableName << " wos renamed succeccfully\n";
     }
     else
     {
 
-        cout << " Table " << tableName << " wos not renamed\n";
+        cout << "Table " << tableName << " wos not renamed\n";
     }
 }
 
@@ -169,11 +168,11 @@ void SQLiteDatabase::insert(const std::string &tableName, const User &obj)
     bool result = execute(sql);
     if (result)
     {
-        cout << " Data wos inserted successfully\n";
+        cout << "Data wos inserted successfully\n";
     }
     else
     {
-        cout << " Data wos not inserted secessfuly\n";
+        cout << "Data wos not inserted successfully\n";
     }
 }
 
@@ -203,7 +202,7 @@ std::vector<User> SQLiteDatabase::select(const std::string &query)
     return users;
 }
 
-std::vector<User> SQLiteDatabase::getAllObjects(const std::string &tableName)
+std::vector<User> SQLiteDatabase::getAllObjects(const std::string &tableName) const
 {
     std::vector<User> users;
     std::string tmp = "SELECT * FROM `" + tableName + "` ;";
@@ -230,7 +229,7 @@ std::vector<User> SQLiteDatabase::getAllObjects(const std::string &tableName)
     return users;
 }
 
-std::vector<User> SQLiteDatabase::getObjects(const std::string &tableName, const string &condition)
+std::vector<User> SQLiteDatabase::getObjects(const std::string &tableName, const string &condition) const
 {
     std::vector<User> users;
     std::string tmp = "SELECT * FROM `" + tableName + "` WHERE " + condition + ";";
@@ -270,11 +269,11 @@ void SQLiteDatabase::update(const std::string &tableName, const User &obj, const
     bool result = execute(sql);
     if (result)
     {
-        cout << "  Data wos updated successfully\n";
+        cout << "Data wos updated successfully\n";
     }
     else
     {
-        cout << " Data wos not updated successfully\n";
+        cout << "Data wos not updated successfully\n";
     }
 }
 
@@ -285,11 +284,11 @@ void SQLiteDatabase::removeObject(const std::string &tableName, const std::strin
     bool result = execute(sql);
     if (result)
     {
-        cout << " Data wos deleted successfully\n";
+        cout << "Data wos deleted successfully\n";
     }
     else
     {
-        cout << " Data wos not successfully\n";
+        cout << "Data wos not successfully\n";
     }
 }
 
@@ -300,15 +299,15 @@ void SQLiteDatabase::removeAllObjects(const std::string &tableName)
     bool result = execute(sql);
     if (result)
     {
-        cout << " Data wos deleted successfully\n";
+        cout << "Data wos deleted successfully\n";
     }
     else
     {
-        cout << " Data wos not successfully\n";
+        cout << "Data wos not successfully\n";
     }
 }
 
-std::vector<User> SQLiteDatabase::getObjectsOrderBy(const std::string &tableName, const string &field)
+std::vector<User> SQLiteDatabase::getObjectsOrderBy(const std::string &tableName, const string &field) const
 {
 
     std::string tmp = "SELECT * FROM `" + tableName + "` ORDER BY " + field + ";";
@@ -336,7 +335,7 @@ std::vector<User> SQLiteDatabase::getObjectsOrderBy(const std::string &tableName
     return users;
 }
 
-std::vector<User> SQLiteDatabase::getObjectsOrderBy(const std::string &tableName, const string &field1, const string &field2)
+std::vector<User> SQLiteDatabase::getObjectsOrderBy(const std::string &tableName, const string &field1, const string &field2) const
 {
 
     std::string tmp = "SELECT * FROM `" + tableName + "` ORDER BY " + field1 + " , " + field2 + ";";
@@ -379,11 +378,11 @@ void SQLiteDatabase::beginTransaction()
     bool result = execute(sql);
     if (result)
     {
-        cout << " Start of transaction\n";
+        cout << "Start of transaction\n";
     }
     else
     {
-        cout << " Failed start of transction\n";
+        cout << "Failed start of transction\n";
     }
 }
 void SQLiteDatabase::commit()
@@ -392,11 +391,11 @@ void SQLiteDatabase::commit()
     bool result = execute(sql);
     if (result)
     {
-        cout << " Commit\n";
+        cout << "Commit\n";
     }
     else
     {
-        cout << " Failed commit\n";
+        cout << "Failed commit\n";
     }
 }
 void SQLiteDatabase::rollback()
@@ -405,10 +404,101 @@ void SQLiteDatabase::rollback()
     bool result = execute(sql);
     if (result)
     {
-        cout << " Rollback\n";
+        cout << "Rollback\n";
     }
     else
     {
-        cout << " Failed rollback\n";
+        cout << "Failed rollback\n";
     }
+}
+
+std::vector<std::string> SQLiteDatabase::getTables() const
+{
+    std::vector<std::string> tables;
+    const char *sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        while (sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            const unsigned char *text = sqlite3_column_text(stmt, 0);
+            if (text)
+            {
+                tables.push_back(reinterpret_cast<const char *>(text));
+            }
+        }
+    }
+    sqlite3_finalize(stmt);
+    if (tables.empty())
+    {
+        cout << "Database does not contain tables\n";
+    }
+    return tables;
+}
+
+void SQLiteDatabase::copyAllObjectsInOtherTable(const std::string &tableNameFrom, const std::string &tableNameTo)
+{
+    if (tableExists(tableNameFrom) && tableExists(tableNameTo))
+    {
+
+        std::string sql = "INSERT INTO \"" + tableNameTo + "\" SELECT * FROM \"" + tableNameFrom + "\";";
+
+        bool result = execute(sql);
+        if (result)
+        {
+            cout << "Copying successfull\n";
+            commit();
+        }
+        else
+        {
+            cout << "Copying not successfull\n";
+        }
+        return;
+    }
+    else
+    {
+        cout << "Database does not contain table\n";
+    }
+}
+void SQLiteDatabase::copyObjectsInOtherTable(const std::string &tableNameFrom, const std::string &tableNameTo, const std::string &condition)
+{
+    if (tableExists(tableNameFrom) && tableExists(tableNameTo))
+    {
+
+        std::string sql = "INSERT INTO '" + tableNameTo + "' SELECT id, name, age FROM '" + tableNameFrom + "' WHERE " + condition + ";";
+        bool result = execute(sql);
+        if (result)
+        {
+            cout << "Copying successfull\n";
+            commit();
+        }
+        else
+        {
+            cout << "Copying not successfull\n";
+        }
+        return;
+    }
+    else
+    {
+        cout << "Database does not contain table\n";
+    }
+}
+
+int SQLiteDatabase::getObjectsCount(const std::string &tableName) const
+{
+    auto temp = getAllObjects(tableName);
+    return temp.size();
+}
+void SQLiteDatabase::swapObjects(const std::string &tableName, const std::string &id_obj, const std::string &id_other_obj)
+{
+    auto temp1 = getObjects(tableName, id_obj);
+    auto temp2 = getObjects(tableName, id_other_obj);
+
+    auto temp1_id = temp1.front().id;
+    temp1.front().id = temp2.front().id;
+    temp2.front().id = temp1_id;
+
+    update(tableName, temp1.front(), id_other_obj);
+    update(tableName, temp2.front(), id_obj);
 }
