@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.14)  
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
@@ -46,7 +45,6 @@ enable_testing()
 set(TEST_SOURCES
     test/test_main.cpp
     test/test_sqlite.cpp
-    src/SQLiteDatabase.cpp
 )
 
 add_executable(runTests ${TEST_SOURCES})
