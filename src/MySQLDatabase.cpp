@@ -28,7 +28,7 @@ void MySQLDatabase::disconnect()
     close();
 }
 
-bool MySQLDatabase::isConnected()
+bool MySQLDatabase::isConnected() const
 {
     return conn && conn->isValid();
 }
@@ -38,7 +38,7 @@ void MySQLDatabase::useDatabase(const string &db_file)
     bool res = execute(sql);
     if (res)
     {
-        cout << "Use " << db_file << " change secuess\n";
+        cout << "Use " << db_file << " changed successfully\n";
     }
     else
     {
@@ -59,7 +59,7 @@ void MySQLDatabase::dropTable(const string &tableName)
     }
 }
 
-bool MySQLDatabase::tableExists(const string &tableName)
+bool MySQLDatabase::tableExists(const string &tableName) const
 {
     std::unique_ptr<sql::Statement> stmt(conn.get()->createStatement());
     std::unique_ptr<sql::ResultSet> res(stmt.get()->executeQuery("SHOW TABLES LIKE '" + tableName + "'"));
@@ -107,7 +107,7 @@ void MySQLDatabase::dropDatabase(const string &db_file)
     }
     else
     {
-        cout << "Not drop db_file \n";
+        cout << "Not droped " << db_file << "\n";
     }
 }
 
@@ -143,7 +143,7 @@ void MySQLDatabase::renameTable(const string &tableName, const string &newName)
     }
     else
     {
-        cout << "Tale wos not renamed\n";
+        cout << "Table wos not renamed\n";
     }
 }
 
@@ -182,7 +182,7 @@ std::vector<User> MySQLDatabase::select(const std::string &query)
     return tmp;
 }
 
-std::vector<User> MySQLDatabase::getAllObjects(const std::string &tableName)
+std::vector<User> MySQLDatabase::getAllObjects(const std::string &tableName) const
 {
     std::string sql = "SELECT * FROM `" + tableName + "` ;";
 
@@ -202,7 +202,7 @@ std::vector<User> MySQLDatabase::getAllObjects(const std::string &tableName)
     return tmp;
 }
 
-std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName, const string &field)
+std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName, const string &field) const
 {
     std::string sql = "SELECT * FROM `" + tableName + "` ORDER BY " + field + " ;";
 
@@ -222,7 +222,7 @@ std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName,
     return tmp;
 }
 
-std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName, const string &field1, const string &field2)
+std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName, const string &field1, const string &field2) const
 {
     std::string sql = "SELECT * FROM `" + tableName + "` ORDER BY " + field1 + " , " + field2 + " ;";
 
@@ -243,7 +243,7 @@ std::vector<User> MySQLDatabase::getObjectsOrderBy(const std::string &tableName,
     return tmp;
 }
 
-std::vector<User> MySQLDatabase::getObjects(const std::string &tableName, const string &condition)
+std::vector<User> MySQLDatabase::getObjects(const std::string &tableName, const string &condition) const
 {
     std::string sql = "SELECT * FROM `" + tableName + "` WHERE " + condition + ";";
     vector<User> tmp;
@@ -328,11 +328,11 @@ void MySQLDatabase::beginTransaction()
 
     if (res)
     {
-        cout << "START TRANSACTION " << "\n";
+        cout << "Start transaction " << "\n";
     }
     else
     {
-        cout << "Failed START TRANSACTION " << "\n";
+        cout << "Failed start transaction " << "\n";
     }
 }
 void MySQLDatabase::commit()
@@ -342,11 +342,11 @@ void MySQLDatabase::commit()
     bool res = execute(sql);
     if (res)
     {
-        cout << "COMMIT " << "\n";
+        cout << "Commit" << "\n";
     }
     else
     {
-        cout << " Failed COMMIT " << "\n";
+        cout << " Failed commit " << "\n";
     }
 }
 void MySQLDatabase::rollback()
@@ -356,10 +356,100 @@ void MySQLDatabase::rollback()
     bool res = execute(sql);
     if (res)
     {
-        cout << "ROLLBACK " << "\n";
+        cout << "Rollback " << "\n";
     }
     else
     {
-        cout << "Failed ROLLBACK " << "\n";
+        cout << "Failed  rollback " << "\n";
     }
+}
+
+std::vector<std::string> MySQLDatabase::getTables() const
+{
+    std::vector<std::string> tables;
+std:
+    string sql = "SHOW TABLES;";
+
+    std::unique_ptr<sql::Statement>
+        stmt(conn.get()->createStatement());
+    std::unique_ptr<sql::ResultSet> res(stmt.get()->executeQuery(sql));
+
+    while (res->next())
+    {
+        tables.push_back(res->getString(1)); // первый столбец - имя таблицы
+    }
+
+    if (tables.empty())
+    {
+        cout << "Curent base not existed tables! \n";
+    }
+    return tables;
+}
+
+void MySQLDatabase::copyAllObjectsInOtherTable(const std::string &tableNameFrom, const std::string &tableNameTo)
+{
+
+    if (tableExists(tableNameFrom) && tableExists(tableNameTo))
+    {
+
+        string sql = "INSERT INTO `" + tableNameTo + "` SELECT * FROM `" + tableNameFrom + "`;";
+
+        bool result = execute(sql);
+        if (result)
+        {
+            cout << "Copying successfull\n";
+            commit();
+        }
+        else
+        {
+            cout << "Copying not successfull\n";
+        }
+        return;
+    }
+    else
+    {
+        cout << "This table not existed base\n";
+    }
+}
+void MySQLDatabase::copyObjectsInOtherTable(const std::string &tableNameFrom, const std::string &tableNameTo, const std::string &condition)
+{
+    if (tableExists(tableNameFrom) && tableExists(tableNameTo))
+    {
+
+        string sql = "INSERT INTO `" + tableNameTo + "` SELECT id, name, age FROM `" + tableNameFrom + "`  WHERE " + condition + ";";
+        bool result = execute(sql);
+        if (result)
+        {
+            cout << "Copying successfull\n";
+            commit();
+        }
+        else
+        {
+            cout << "Copying not successfull\n";
+        }
+        return;
+    }
+    else
+    {
+        cout << "This table not existed base\n";
+    }
+}
+
+int MySQLDatabase::getObjectsCount(const std::string &tableName) const
+{
+    auto temp = getAllObjects(tableName);
+    return temp.size();
+}
+
+void MySQLDatabase::swapObjects(const std::string &tableName, const std::string &id_obj, const std::string &id_other_obj)
+{
+    auto temp1 = getObjects(tableName, id_obj);
+    auto temp2 = getObjects(tableName, id_other_obj);
+
+    auto temp1_id = temp1.front().id;
+    temp1.front().id = temp2.front().id;
+    temp2.front().id = temp1_id;
+
+    update(tableName, temp1.front(), id_other_obj);
+    update(tableName, temp2.front(), id_obj);
 }
