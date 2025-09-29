@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)  
+cmake_minimum_required(VERSION 3.14)
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# Основная библиотека
 add_library(database SHARED
     src/MySQLDatabase.cpp
     src/SQLiteDatabase.cpp
@@ -21,9 +22,9 @@ install(TARGETS database
     ARCHIVE DESTINATION lib
 )
 
+# Основной исполняемый файл
 add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 target_link_libraries(orm_database
     database
     mysqlcppconn
@@ -31,6 +32,8 @@ target_link_libraries(orm_database
 )
 
 include(FetchContent)
+
+# Подключение GoogleTest с веткой main
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
@@ -40,6 +43,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+# Тестовые исходники без включения googletest в библиотеку
 set(TEST_SOURCES
     test/test_main.cpp
     test/test_sqlite.cpp
@@ -51,8 +55,6 @@ target_include_directories(runTests PRIVATE include)
 
 include(GoogleTest)
 gtest_discover_tests(runTests)
-
-add_test(NAME runTests COMMAND runTests)
 
 install(TARGETS orm_database RUNTIME DESTINATION bin)
 
