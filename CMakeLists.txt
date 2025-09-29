@@ -1,7 +1,5 @@
-Исправленный CMakeLists.txt с актуальным тегом для GoogleTest и корректной настройкой FetchContent выглядит так:
 
-text
-cmake_minimum_required(VERSION 3.11)  # минимум для FetchContent
+cmake_minimum_required(VERSION 3.11)  
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
