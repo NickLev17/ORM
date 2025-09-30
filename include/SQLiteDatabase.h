@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <gtest/gtest.h>
+/**#include <gtest/gtest.h>*/
 #include <stdexcept>
 
 using namespace std;
@@ -238,7 +238,7 @@ public:
     void swapObjects(const std::string &tableName, const std::string &id_obj, const std::string &id_other_obj) override;
 
 private:
-    FRIEND_TEST(SQLiteDatabaseTest, CreateDatabaseInMemory);
+ /** FRIEND_TEST(SQLiteDatabaseTest, CreateDatabaseInMemory);*/
 };
 
 #endif
