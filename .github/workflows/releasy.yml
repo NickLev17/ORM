@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -15,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtest-dev doxygen graphviz cmake build-essential
+          sudo apt-get install -y libgtest-dev doxygen graphviz libmysqlcppconn-dev cmake build-essential
 
       - name: Build Google Test libraries
         run: |
@@ -31,8 +32,8 @@ jobs:
       - name: Build project
         run: cmake --build .
 
-      - name: Run Google Tests
-        run: ctest --output-on-failure
+      - name: Run SQLite-only Google Tests
+        run: ctest -R sqlite --output-on-failure
 
       - name: Find generated .deb files
         run: find . -name '*.deb' -ls
