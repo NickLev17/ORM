@@ -16,7 +16,7 @@ add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(orm_database database mysqlcppconn sqlite3)
 
-# Подключение Googletest
+# FetchContent для GoogleTest
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -39,7 +39,7 @@ target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include(GoogleTest)
 gtest_discover_tests(runTests)
 
-# Установка (для CPack)
+# Инсталляция для упаковки
 install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -48,7 +48,7 @@ install(TARGETS orm_database
     RUNTIME DESTINATION bin
 )
 
-# Настройка CPack для DEB пакета
+# CPack настройка
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "orm-database")
 set(CPACK_PACKAGE_FILE_NAME "orm_database-${PROJECT_VERSION}-Linux")
