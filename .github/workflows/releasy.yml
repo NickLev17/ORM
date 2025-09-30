@@ -26,20 +26,23 @@ jobs:
           sudo make
           sudo cp lib/libgtest* /usr/lib/
 
-      - name: Configure project with CMake
-        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
+      - name: Configure project with CMake (in build folder)
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
 
-      - name: Build project
-        run: cmake --build .
+      - name: Build project (build all targets)
+        run: cmake --build build
 
       - name: Run SQLite-only Google Tests
-        run: ctest -R sqlite --output-on-failure
+        run: ctest -R sqlite --output-on-failure --test-dir build
 
       - name: Find generated .deb files
-        run: find . -name '*.deb' -ls
+        run: find build -name '*.deb' -ls
 
       - name: Build package
-        run: cmake --build . --target package
+        run: cmake --build build --target package
 
       - name: Create Release
         id: create_release
@@ -59,6 +62,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./orm_database-0.0.${{ github.run_number }}-Linux.deb
+          asset_path: build/orm_database-0.0.${{ github.run_number }}-Linux.deb
           asset_name: orm_database-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
