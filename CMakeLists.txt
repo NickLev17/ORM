@@ -4,7 +4,7 @@ project(main VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# -- Добавляем основную библиотеку
+# -- Основная библиотека
 add_library(database SHARED
     src/MySQLDatabase.cpp
     src/SQLiteDatabase.cpp
@@ -16,7 +16,7 @@ add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(orm_database database mysqlcppconn sqlite3)
 
-# -- FetchContent для googletest
+# -- FetchContent для Googletest
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -33,12 +33,13 @@ set(TEST_SOURCES
 )
 
 add_executable(runTests ${TEST_SOURCES})
-target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3)
-target_include_directories(runTests PRIVATE include)
+target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3 mysqlcppconn)
+target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 include(GoogleTest)
 gtest_discover_tests(runTests)
 
+# -- Установка
 install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -47,7 +48,7 @@ install(TARGETS orm_database
     RUNTIME DESTINATION bin
 )
 
-# -- CPack для создания deb пакета
+# -- CPack для создания DEB пакета
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
