@@ -36,10 +36,10 @@ jobs:
       - name: Run tests
         run: ctest --verbose
 
-      - name: Package project with CPack
+      - name: Package project
         run: cmake --build . --target package
 
-      - name: List generated .deb packages
+      - name: Debug: list generated .deb packages
         run: find . -name '*.deb' -ls
 
       - name: Create Release
@@ -53,14 +53,16 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Find deb package for upload
+        id: find_deb
+        run: echo "deb_path=$(find . -name '*.deb' | head -n 1)" >> $GITHUB_OUTPUT
+
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          # Убедитесь, что путь к пакету совпадает с выводом предыдущего шага
-          asset_path: ./_CPack_Packages/Linux/DEB/orm_database-0.0.${{ github.run_number }}-Linux/orm_database-0.0.${{ github.run_number }}-Linux.deb
-          asset_name: orm_database-0.0.${{ github.run_number }}-Linux.deb
+          asset_path: ${{ steps.find_deb.outputs.deb_path }}
+          asset_name: ${{ steps.find_deb.outputs.deb_path && steps.find_deb.outputs.deb_path | basename }}
           asset_content_type: application/vnd.debian.binary-package
