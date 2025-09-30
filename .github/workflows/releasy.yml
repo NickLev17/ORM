@@ -1,64 +1,63 @@
-name: 'C++ CI'
+cmake_minimum_required(VERSION 3.14)
 
-on:
-  push:
-    branches: [main]
+project(main VERSION 0.0.1)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
+add_library(database SHARED
+    src/MySQLDatabase.cpp
+    src/SQLiteDatabase.cpp
+)
+target_include_directories(database PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libboost-test-dev \
-            doxygen \
-            graphviz \
-            libmysqlcppconn-dev \
-            libsqlite3-dev \
-            cmake \
-            g++ \
-            make
 
-      - name: Configure CMake
-        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
+add_executable(orm_database src/main.cpp)
+target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(orm_database database mysqlcppconn sqlite3)
 
-      - name: Build project
-        run: cmake --build .
 
-      - name: Run tests
-        run: ctest --verbose
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(googletest)
 
-      - name: Package project
-        run: cmake --build . --target package
+enable_testing()
 
-      - name: List deb packages
-        run: find . -name '*.deb' -ls
+set(TEST_SOURCES
+    test/test_main.cpp
+    test/test_sqlite.cpp
+)
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
+add_executable(runTests ${TEST_SOURCES})
+target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3 mysqlcppconn)
+target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./orm_database-0.0.${{ github.run_number }}-Linux.deb
-          asset_name: orm_database-0.0.${{ github.run_number }}-Linux.deb
-          asset_content_type: application/vnd.debian.binary-package
+include(GoogleTest)
+gtest_discover_tests(runTests)
+
+
+install(TARGETS database
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+install(TARGETS orm_database
+    RUNTIME DESTINATION bin
+)
+
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME "orm-database")
+set(CPACK_PACKAGE_FILE_NAME "orm_database-${PROJECT_VERSION}-Linux")  # Имя deb файла без пути
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_CONTACT "example@example.com")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "example@example.com")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.7), libmysqlcppconn8v5, libsqlite3-0")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "ORM Database shared library and tools")
+
+include(CPack)
