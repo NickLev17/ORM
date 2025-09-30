@@ -39,7 +39,7 @@ jobs:
       - name: Package project
         run: cmake --build . --target package
 
-      - name: Debug: list generated .deb packages
+      - name: List generated .deb packages
         run: find . -name '*.deb' -ls
 
       - name: Create Release
