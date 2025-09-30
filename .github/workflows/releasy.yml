@@ -1,3 +1,6 @@
+Вот полностью исправленный и готовый для использования файл GitHub Actions workflow для вашего C++ проекта с CMake, тестами, пакованием в deb с помощью CPack и созданием релиза:
+
+text
 name: 'C++ CI'
 
 permissions:
@@ -69,5 +72,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.find_deb.outputs.deb_path }}
-          asset_name: ${{ steps.find_deb.outputs.deb_path && steps.find_deb.outputs.deb_path | basename }}
+          asset_name: ${{ basename(steps.find_deb.outputs.deb_path) }}
           asset_content_type: application/vnd.debian.binary-package
