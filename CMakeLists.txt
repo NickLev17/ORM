@@ -19,6 +19,7 @@ install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+
 add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -26,6 +27,10 @@ target_link_libraries(orm_database
     database
     mysqlcppconn
     sqlite3
+)
+
+install(TARGETS orm_database
+    RUNTIME DESTINATION bin
 )
 
 enable_testing()
@@ -43,9 +48,11 @@ add_executable(runTests ${TEST_SOURCES})
 target_link_libraries(runTests PRIVATE database ${GTEST_LIBRARIES} pthread sqlite3)
 target_include_directories(runTests PRIVATE include)
 
+install(TARGETS runTests
+    RUNTIME DESTINATION bin
+)
+
 add_test(NAME runTests COMMAND runTests)
-
-
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "orm-database")
