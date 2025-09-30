@@ -1,52 +1,51 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.5)
 
-project(main VERSION 0.0.1)
+set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
+set(PROJECT_VERSION 0.0.${PATCH_VERSION})
+
+project(main VERSION ${PROJECT_VERSION})
+configure_file(version.h.in version.h)
+
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(database SHARED
     src/MySQLDatabase.cpp
     src/SQLiteDatabase.cpp
 )
 target_include_directories(database PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-add_executable(orm_database src/main.cpp)
-target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(orm_database database mysqlcppconn sqlite3)
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG main
-)
-FetchContent_MakeAvailable(googletest)
-
-enable_testing()
-
-set(TEST_SOURCES
-    test/test_main.cpp
-    test/test_sqlite.cpp
-)
-
-add_executable(runTests ${TEST_SOURCES})
-target_link_libraries(runTests PRIVATE database GTest::gtest_main pthread sqlite3 mysqlcppconn)
-target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-include(GoogleTest)
-gtest_discover_tests(runTests)
-
 install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
-install(TARGETS orm_database
-    RUNTIME DESTINATION bin
+add_executable(orm_database src/main.cpp)
+target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(orm_database
+    database
+    mysqlcppconn
+    sqlite3
 )
 
-if(NOT DEFINED PATCH_VERSION)
-  set(PATCH_VERSION "0")
-endif()
+enable_testing()
+
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+
+set(TEST_SOURCES
+    test/test_main.cpp
+    test/test_sqlite.cpp
+    src/SQLiteDatabase.cpp
+)
+
+add_executable(runTests ${TEST_SOURCES})
+target_link_libraries(runTests PRIVATE database ${GTEST_LIBRARIES} pthread sqlite3)
+target_include_directories(runTests PRIVATE include)
+
+add_test(NAME runTests COMMAND runTests)
+
+
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "orm-database")
