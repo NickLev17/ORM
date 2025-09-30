@@ -19,10 +19,11 @@ jobs:
 
       - name: Build Google Test libraries
         run: |
-          cd /usr/src/gtest
-          sudo cmake .
+          cd /usr/src/googletest/googletest
+          sudo mkdir build && cd build
+          sudo cmake ..
           sudo make
-          sudo cp *.a /usr/lib/
+          sudo cp lib/libgtest* /usr/lib/
 
       - name: Configure project with CMake
         run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON
