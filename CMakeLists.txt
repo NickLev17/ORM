@@ -39,7 +39,7 @@ target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include(GoogleTest)
 gtest_discover_tests(runTests)
 
-# -- Установка
+# -- Установка (для CPack)
 install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -48,10 +48,15 @@ install(TARGETS orm_database
     RUNTIME DESTINATION bin
 )
 
-# -- CPack для создания DEB пакета
-set(CPACK_GENERATOR DEB)
+# -- Настройки CPack для создания deb пакета
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME "orm-database")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-set(CPACK_PACKAGE_CONTACT example@example.com)
+set(CPACK_PACKAGE_CONTACT "example@example.com")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "example@example.com")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.7), libmysqlcppconn8v5, libsqlite3-0")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "ORM Database shared library and tools")
+
 include(CPack)
