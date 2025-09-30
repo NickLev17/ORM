@@ -4,19 +4,19 @@ project(main VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
+# Основная библиотека
 add_library(database SHARED
     src/MySQLDatabase.cpp
     src/SQLiteDatabase.cpp
 )
 target_include_directories(database PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
+# Основной исполняемый файл
 add_executable(orm_database src/main.cpp)
 target_include_directories(orm_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(orm_database database mysqlcppconn sqlite3)
 
-
+# Подключение Googletest
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -39,7 +39,7 @@ target_include_directories(runTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include(GoogleTest)
 gtest_discover_tests(runTests)
 
-
+# Установка (для CPack)
 install(TARGETS database
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -48,10 +48,10 @@ install(TARGETS orm_database
     RUNTIME DESTINATION bin
 )
 
-
+# Настройка CPack для DEB пакета
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "orm-database")
-set(CPACK_PACKAGE_FILE_NAME "orm_database-${PROJECT_VERSION}-Linux")  # Имя deb файла без пути
+set(CPACK_PACKAGE_FILE_NAME "orm_database-${PROJECT_VERSION}-Linux")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
