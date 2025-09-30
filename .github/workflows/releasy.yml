@@ -36,11 +36,11 @@ jobs:
       - name: Run tests
         run: ctest --verbose
 
-      - name: Package project
+      - name: Package project with CPack
         run: cmake --build . --target package
 
-      - name: List deb packages for debugging
-        run: find ./_CPack_Packages -name '*.deb' -ls
+      - name: List generated .deb packages
+        run: find . -name '*.deb' -ls
 
       - name: Create Release
         id: create_release
@@ -60,6 +60,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          # Убедитесь, что путь к пакету совпадает с выводом предыдущего шага
           asset_path: ./_CPack_Packages/Linux/DEB/orm_database-0.0.${{ github.run_number }}-Linux/orm_database-0.0.${{ github.run_number }}-Linux.deb
           asset_name: orm_database-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
